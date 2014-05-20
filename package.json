@@ -1,0 +1,35 @@
+{
+        "name": "node-ptrace",
+        "version": "1.0",
+        "authors": [
+            "Ravi Chunduru <ravivsn@gmail.com>",
+            ],
+        "description": "A FFI implementation for process trace in nodejs",
+        "keywords": [
+            "process","ptrace", "trace"
+            ],
+        "homepage": "http://github.com/rchunduru/node-ptrace",
+        "engines": {
+            "node": ">=0.6.0"
+        },
+        "main": "./lib/childtrace",
+        "dependencies": {
+            "ref": "*",
+            "ffi": "*"
+        },
+        "devDependencies": {
+            "expect.js": "*",
+            "mocha": "*",
+            "ref-array": "*"
+        },
+        "scripts": {
+            "build": "gcc -shared -fpic src/childtrace.c -o build/libchildtrace"
+        },
+        "repository": {
+            "type": "git",
+            "url": "http://github.com/rchunduru/node-ptrace.git"
+        },
+        "bugs": {
+            "url": "http://github.com/rchunduru/node-ptrace/issues"
+        }
+}
