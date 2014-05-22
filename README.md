@@ -27,7 +27,7 @@ Sample Output:
  1000     26725 26313 99 18:57 pts/5    00:00:03 ./server
 
 
- node lib/childtrace.js 26725 5
+ node examples/childtrace.js 26725 5
 
  rchunduru@rchunduru-develop:~$ kill -SIGHUP 26725
 
