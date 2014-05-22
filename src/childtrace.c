@@ -15,9 +15,9 @@
 #define EXPORT
 #endif
 
-typedef void (*callbackfp_t)(char *error, char *result);
+typedef void (*callbackfp_t)(char *error, int pid, void *cookie, char *result);
 
-EXPORT void add(int pid, int retries, callbackfp_t fp) {
+EXPORT void add(int pid, void *cookie, int retries, callbackfp_t fp) {
 	long r, i = 0;
 	char error[2048];
 	printf("start with pid %d retries %d\n", pid, retries);
@@ -26,7 +26,7 @@ EXPORT void add(int pid, int retries, callbackfp_t fp) {
 		if (--retries == 0 && r < 0) { 
 			//printf("childptrace.c: after reaching max entries\n");
 			sprintf(error, "Reached max retries :%ld. Error is %s", i, strerror(errno));
-			(*fp)(error, NULL);
+			(*fp)(error, pid, cookie, NULL);
 			return ;
 		}
 	} while (r == -1 && (errno == EBUSY || errno == EFAULT || errno == ESRCH));
@@ -35,17 +35,17 @@ EXPORT void add(int pid, int retries, callbackfp_t fp) {
 	if (r < 0 ){
 		sprintf(error, "Not able to attach to process %d. Error is %s", pid, strerror(errno));
 		//printf("childptrace.c:: not able to attach to process");
-		(*fp)(error, NULL);
+		(*fp)(error, pid, cookie, NULL);
 		return ;
 	}
 	ptrace (PTRACE_CONT, pid, NULL, 0);
 	//printf("childptrace.c: Success in attaching to process");
-	(*fp)(NULL, "successfully attached to the process");
+	(*fp)(NULL, pid, cookie, "successfully attached to the process");
 	return ; 
 }
 
 
-EXPORT void detach(int pid, int retries, callbackfp_t fp) {
+EXPORT void detach(int pid, void *cookie, int retries, callbackfp_t fp) {
 	long r;
 	char error[2048];
 
@@ -54,16 +54,16 @@ EXPORT void detach(int pid, int retries, callbackfp_t fp) {
 		if (--retries == 0 && r < 0) { 
 			//printf("childptrace.c: after reaching max entries\n");
 			sprintf(error, "Reached max retries. Error is %s", strerror(errno));
-			(*fp)(error, NULL);
+			(*fp)(error, pid, cookie, NULL);
 			return ;
 		}
 	} while (r == -1 && (errno == EBUSY || errno == EFAULT || errno == ESRCH));
-	(*fp)(NULL, "successfully detached from process");
+	(*fp)(NULL, pid, cookie, "successfully detached from process");
 	return;
 }
 
 
-EXPORT void getsignal(int pid, callbackfp_t fp){
+EXPORT void getsignal(int pid, void *cookie, callbackfp_t fp){
 	long r;
 	int status;
 	char result[2048];
@@ -71,20 +71,20 @@ EXPORT void getsignal(int pid, callbackfp_t fp){
 		r = waitpid(pid, &status, WUNTRACED| WCONTINUED);
 		if (r == -1) {
 			sprintf(result, "waitpid failed due to error %s", strerror(errno));
-			(*fp)(result, NULL);
+			(*fp)(result, pid, cookie, NULL);
 			return;
 		}
            if (WIFEXITED(status)) {
                 sprintf(result, "exited, status=%d\n", WEXITSTATUS(status));
-		(*fp)(NULL, result);
+		(*fp)(NULL, pid, cookie, "exited");
 		return; 
             } else if (WIFSIGNALED(status)) {
                 sprintf(result, "killed by signal %d\n", WTERMSIG(status));
-		(*fp)(NULL, result);
+		(*fp)(NULL, pid, cookie, "killed");
 		return;
             } else if (WIFSTOPPED(status)) {
                 sprintf(result, "stopped by signal %d\n", WSTOPSIG(status));
-		(*fp)(NULL, result);
+		(*fp)(NULL, pid, cookie, "stopped");
 		return;
             } else if (WIFCONTINUED(status)) {
                 printf("continued\n");
@@ -92,7 +92,7 @@ EXPORT void getsignal(int pid, callbackfp_t fp){
 	   
         } while (!WIFEXITED(status) && !WIFSIGNALED(status));
 	sprintf(result, "this process is exited or signalled %d", status);
-	(*fp)(NULL, result);
+	(*fp)(NULL, pid, cookie, "perror");
 	return;
 }
 

@@ -10,14 +10,16 @@ if (process.argv.length < 4) {
 console.log('arguments are ', parseInt(process.argv[2]), parseInt(process.argv[3]));
 
 
-var cb= function(err,res) {
+var cb= function(err, pid, cookie, res) {
     if (err) console.log(err);
     if (res) console.log(res);
 }
 
 var cbPtr = ptrace.getcbptr(cb);
 
-var sigCb = function(err, res) {
+var cookie = new Buffer("something");
+
+var sigCb = function(err, pid, cookie, res) {
  	if (err) { 
 		console.log (err);
 	} else if (res) {
@@ -25,7 +27,7 @@ var sigCb = function(err, res) {
 		console.log("Got signal ", res);
 		async.series([
 			console.log("Detach from the process"),
-			ptrace.detach(parseInt(process.argv[2],10), parseInt(process.argv[3],10), cbPtr),
+			ptrace.detach(parseInt(process.argv[2],10), cookie, parseInt(process.argv[3],10), cbPtr),
 			console.log("Signalled the process."),
 			ptrace.sendsignal(parseInt(process.argv[2],10), 1),
                 ]);
@@ -34,7 +36,7 @@ var sigCb = function(err, res) {
 var sigCbPtr = ptrace.getcbptr(sigCb);
 
 console.log("Starting to attach to the process and monitor it");
-async.series([ptrace.add(parseInt(process.argv[2],10), parseInt(process.argv[3],10), cbPtr), 
-               ptrace.getsignal(parseInt(process.argv[2],10), sigCbPtr)]);
+async.series([ptrace.add(parseInt(process.argv[2],10), cookie , parseInt(process.argv[3],10), cbPtr), 
+               ptrace.getsignal(parseInt(process.argv[2],10), cookie, sigCbPtr)]);
 
 
