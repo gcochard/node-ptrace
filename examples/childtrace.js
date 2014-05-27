@@ -17,7 +17,6 @@ var cb= function(err, pid, cookie, res) {
 
 var cbPtr = ptrace.getcbptr(cb);
 
-var cookie = new Buffer("something");
 
 var sigCb = function(err, pid, cookie, res) {
  	if (err) { 
@@ -36,7 +35,7 @@ var sigCb = function(err, pid, cookie, res) {
 var sigCbPtr = ptrace.getcbptr(sigCb);
 
 console.log("Starting to attach to the process and monitor it");
-async.series([ptrace.add(parseInt(process.argv[2],10), cookie , parseInt(process.argv[3],10), cbPtr), 
-               ptrace.getsignal(parseInt(process.argv[2],10), cookie, sigCbPtr)]);
+async.series([ptrace.add(parseInt(process.argv[2],10), "somekey", parseInt(process.argv[3],10), cbPtr), 
+               ptrace.getsignal(parseInt(process.argv[2],10), "somekey" , sigCbPtr)]);
 
 
