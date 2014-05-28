@@ -1,7 +1,7 @@
 {
     "name": "node-ptrace",
     "description": "Provides tracing process for signals",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "author": "Ravi Chunduru",
     "repository": {
         "type": "git",
@@ -19,6 +19,6 @@
     },
     "main": "./lib/ptrace",
     "scripts": {
-        "preinstall": "gcc -shared -fpic src/childtrace.c -o /usr/lib/libchildtrace.so"
+        "preinstall": "gcc -shared -fpic src/childtrace.c -o ./build/libchildtrace.so"
     }
 }
