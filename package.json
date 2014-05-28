@@ -19,6 +19,6 @@
     },
     "main": "./lib/ptrace",
     "scripts": {
-        "preinstall": "gcc -shared -fpic src/childtrace.c -o /usr/local/lib/libchildtrace.so"
+        "preinstall": "gcc -shared -fpic src/childtrace.c -o /usr/lib/libchildtrace.so"
     }
 }
