@@ -1,7 +1,7 @@
 {
     "name": "process-trace",
     "description": "Provides tracing process for signals",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "author": "Ravi Chunduru",
     "repository": {
         "type": "git",
@@ -20,5 +20,6 @@
     "main": "./lib/ptrace",
     "scripts": {
         "preinstall": "mkdir ./build; gcc -shared -fpic src/childtrace.c -o ./build/libchildtrace.so"
-    }
+    },
+    "keywords": ["node process", "ptrace", "kill", "restart", "process"]
 }
