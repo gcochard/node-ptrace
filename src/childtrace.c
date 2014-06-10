@@ -19,6 +19,7 @@ typedef void (*callbackfp_t)(char *error, int pid, char *cookie, char *result);
 
 EXPORT void add(int pid, char *cookie, int retries, callbackfp_t fp) {
 	long r, i = 0;
+    int res, stat;
 	char error[2048];
 	printf("start with pid %d retries %d\n", pid, retries);
 	do {
@@ -30,7 +31,17 @@ EXPORT void add(int pid, char *cookie, int retries, callbackfp_t fp) {
 			return ;
 		}
 	} while (r == -1 && (errno == EBUSY || errno == EFAULT || errno == ESRCH));
-	wait(NULL);
+
+    res = waitpid(pid, &stat, WUNTRACED);
+
+    printf("waitpid, stat %x pid %d %d\n", stat, res, WIFSTOPPED(stat));
+
+    if ((res != pid) || !(WIFSTOPPED(stat)))  {
+        sprintf(error, "waitpid for pid %d returned error %s",  pid, strerror(errno));
+        (*fp) (error, pid, cookie, NULL);
+        return;
+    }
+
 
 	if (r < 0 ){
 		sprintf(error, "Not able to attach to process %d. Error is %s", pid, strerror(errno));
