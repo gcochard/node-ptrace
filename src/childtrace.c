@@ -16,6 +16,7 @@
 #endif
 
 typedef void (*callbackfp_t)(char *error, int pid, char *cookie, char *result);
+typedef void (*callbacksigfp_t)(char *error, int pid, char *cookie, char *result, int signum);
 
 EXPORT void add(int pid, char *cookie, int retries, callbackfp_t fp) {
 	long r, i = 0;
@@ -74,31 +75,32 @@ EXPORT void detach(int pid, char *cookie, int retries, callbackfp_t fp) {
 }
 
 
-EXPORT void getsignal(int pid, char *cookie, callbackfp_t fp){
+EXPORT void getsignal(int pid, char *cookie, callbacksigfp_t fp){
 	long r;
 	int status;
 	char result[2048];
+    printf("getsignal, pid %d\n", pid);
 	do {
         r = waitpid(pid, &status, WUNTRACED| WCONTINUED);
         if (r == -1) {
             sprintf(result, "waitpid failed due to error %s", strerror(errno));
-            (*fp)(result, pid, cookie, NULL);
+            (*fp)(result, pid, cookie, NULL, -1);
             return;
         }
         if (WIFEXITED(status)) {
             sprintf(result, "exited, status=%d\n", WEXITSTATUS(status));
-            (*fp)(NULL, pid, cookie, "exited");
+            (*fp)(NULL, pid, cookie, "exited", WTERMSIG(status));
             return; 
         } else if (WIFSIGNALED(status)) {
             sprintf(result, "killed by signal %d\n", WTERMSIG(status));
-            (*fp)(NULL, pid, cookie, "killed");
+            (*fp)(NULL, pid, cookie, "killed", WTERMSIG(status));
             return;
         } else if (WIFSTOPPED(status)) {
             sprintf(result, "stopped by signal %d\n", WSTOPSIG(status));
             //continue for SIGHUP signal
-            kill (pid, SIGHUP);
-	        ptrace (PTRACE_CONT, pid, NULL, 0);
-            //(*fp)(NULL, pid, cookie, "stopped");
+            //kill (pid, SIGHUP);
+	        //ptrace (PTRACE_CONT, pid, NULL, 0);
+            (*fp)(NULL, pid, cookie, "stopped", WSTOPSIG(status));
             //return;
         } else if (WIFCONTINUED(status)) {
             printf("continued\n");
@@ -106,7 +108,7 @@ EXPORT void getsignal(int pid, char *cookie, callbackfp_t fp){
 
     } while (!WIFEXITED(status) && !WIFSIGNALED(status));
     sprintf(result, "this process is exited or signalled %d", status);
-    (*fp)(NULL, pid, cookie, "perror");
+    (*fp)(NULL, pid, cookie, "perror", -1);
     return;
 }
 
