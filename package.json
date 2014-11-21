@@ -1,28 +1,25 @@
 {
-    "name": "process-trace",
-    "description": "Provides tracing process for signals",
-    "version": "0.1.6",
-    "author": "Ravi Chunduru",
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/rchunduru/node-ptrace.git"
-    },
-    "dependencies": {
-        "ffi": "*"
-    },
-    "devDependencies": {
-        "coffee-script": ">=1.7.1"
-    },
-    "optionalDependencies": {},
-    "engines": {
-        "node": ">=0.6.x"
-    },
-    "main": "./lib/ptrace",
-    "scripts": {
-        "preinstall": "mkdir ./build; gcc -shared -fpic src/childtrace.c -o ./build/libchildtrace.so"
-    },
-    "keywords": ["node process", "ptrace", "kill", "restart", "process"],
-	"contributors": [
-		"Sivaprasath Busa"
-    ]
+  "name": "node-ptrace",
+  "description": "Provides tracing process for signals",
+  "version": "1.0.0",
+  "author": "Greg Cochard",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/gcochard/node-ptrace.git"
+  },
+  "dependencies": {
+    "async": "^0.9.0",
+    "ffi": "^1.2.7"
+  },
+  "main": "./lib/ptrace",
+  "scripts": {
+    "preinstall": "mkdir -p ./build; gcc -shared -fpic src/childtrace.c -o ./build/libchildtrace.so"
+  },
+  "keywords": [
+    "node process",
+    "ptrace",
+    "kill",
+    "restart",
+    "process"
+  ]
 }
